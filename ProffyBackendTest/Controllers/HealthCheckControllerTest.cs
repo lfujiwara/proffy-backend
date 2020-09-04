@@ -1,4 +1,3 @@
-using System.Text.Json.Serialization;
 using NUnit.Framework;
 using ProffyBackend.Controllers.HealthCheck;
 

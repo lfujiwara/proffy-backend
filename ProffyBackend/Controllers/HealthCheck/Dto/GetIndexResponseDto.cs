@@ -1,8 +1,6 @@
-using System.Text.Json.Serialization;
-
 namespace ProffyBackend.Controllers.HealthCheck.Dto
 {
-    public class GetIndexDto
+    public class GetIndexResponseDto
     {
         public string Message { get; set; }
     }

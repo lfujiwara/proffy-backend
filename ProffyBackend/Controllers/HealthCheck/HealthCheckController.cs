@@ -5,12 +5,12 @@ namespace ProffyBackend.Controllers.HealthCheck
 {
     [ApiController]
     [Route("[controller]")]
-    public class HealthCheckController : Controller
+    public class HealthCheckController : ControllerBase
     {
         [HttpGet]
-        public GetIndexDto Get()
+        public GetIndexResponseDto Get()
         {
-            return new GetIndexDto {Message = "System is running"};
+            return new GetIndexResponseDto {Message = "System is running"};
         }
     }
 }
