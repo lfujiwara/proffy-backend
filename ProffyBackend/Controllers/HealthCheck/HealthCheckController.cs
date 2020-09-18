@@ -5,7 +5,7 @@ namespace ProffyBackend.Controllers.HealthCheck
 {
     [ApiController]
     [Route("[controller]")]
-    public class HealthCheckController : Controller
+    public class HealthCheckController : ControllerBase
     {
         [HttpGet]
         public GetIndexDto Get()
