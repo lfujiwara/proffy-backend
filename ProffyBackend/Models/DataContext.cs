@@ -19,10 +19,14 @@ namespace ProffyBackend.Models
             modelBuilder.Entity<User>()
                 .HasIndex(u => u.Email)
                 .IsUnique();
-            
+
             modelBuilder.Entity<User>()
                 .HasIndex(u => u.PhoneNumber)
                 .IsUnique();
+
+            modelBuilder.Entity<User>()
+                .Property(u => u.Role)
+                .HasDefaultValue(Role.User);
 
             modelBuilder.Entity<Subject>()
                 .HasIndex(u => u.Name)

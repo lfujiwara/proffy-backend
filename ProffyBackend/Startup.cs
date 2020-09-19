@@ -1,5 +1,4 @@
 using System.Text.Json;
-using AutoMapper;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -40,8 +39,7 @@ namespace ProffyBackend
             // app.UseHttpsRedirection();
 
             app.UseRouting();
-
-            app.UseAuthorization();
+            app.UseCors(x => x.AllowCredentials().AllowAnyHeader().AllowAnyMethod().WithOrigins("localhost:8080"));
 
             app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
         }
