@@ -35,6 +35,6 @@ namespace ProffyBackend.Models
 
         [Required] [Phone] public string PhoneNumber { get; set; }
 
-        [Required] public Role Role { get; set; }
+        [Required] public string Role { get; set; }
     }
 }

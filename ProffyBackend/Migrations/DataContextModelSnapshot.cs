@@ -69,8 +69,11 @@ namespace ProffyBackend.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("Role")
-                        .HasColumnType("INTEGER");
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT")
+                        .HasDefaultValue("User");
 
                     b.Property<int?>("SubjectId")
                         .HasColumnType("INTEGER");

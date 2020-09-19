@@ -34,7 +34,7 @@ namespace ProffyBackend.Migrations
                     Currency = table.Column<string>(maxLength: 4, nullable: true),
                     SubjectId = table.Column<int>(nullable: true),
                     PhoneNumber = table.Column<string>(nullable: false),
-                    Role = table.Column<int>(nullable: false)
+                    Role = table.Column<string>(nullable: false, defaultValue: "User")
                 },
                 constraints: table =>
                 {
