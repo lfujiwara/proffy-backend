@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ProffyBackend.Controllers.UserController.Dto.Create;
@@ -20,6 +21,7 @@ namespace ProffyBackend.Controllers.UserController
         }
 
         [HttpPost]
+        [AllowAnonymous]
         public async Task<ActionResult<User>> Create([FromBody] Request requestData)
         {
             // Wrap logic into service layer later
