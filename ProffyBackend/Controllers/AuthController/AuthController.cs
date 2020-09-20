@@ -92,7 +92,7 @@ namespace ProffyBackend.Controllers.AuthController
 
         [HttpGet]
         [Route("check")]
-        [AuthorizeRoles(AuthorizationPolicies.SuperAdmin, AuthorizationPolicies.Admin, AuthorizationPolicies.User)]
+        [Authorize(AuthorizationPolicies.User)]
         public ActionResult<string> Check()
         {
             var claim = User.Claims.First(c => c.Type == ClaimTypes.Role);

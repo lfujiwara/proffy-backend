@@ -87,7 +87,7 @@ namespace ProffyBackend.Controllers.UserController
         }
 
         [HttpPut]
-        [AuthorizeRoles(Role.SuperAdmin, Role.Admin, Role.User)]
+        [Authorize(Role.User)]
         public async Task<ActionResult<User>> SelfUpdate([FromBody] Dto.Update.Request requestData)
         {
             try
