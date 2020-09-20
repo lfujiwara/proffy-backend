@@ -1,11 +1,14 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ProffyBackend.Controllers.UserController.Dto.Create;
 using ProffyBackend.Models;
+using ProffyBackend.Services.Auth;
 
 namespace ProffyBackend.Controllers.UserController
 {
@@ -47,7 +50,7 @@ namespace ProffyBackend.Controllers.UserController
         {
             return await _dataContext.Users.ToListAsync();
         }
-
+        
         [Route("{id}")]
         [HttpPut]
         public async Task<ActionResult<User>> Update([FromRoute] Guid id, [FromBody] Dto.Update.Request requestData)
@@ -83,8 +86,46 @@ namespace ProffyBackend.Controllers.UserController
             }
         }
 
+        [HttpPut]
+        [AuthorizeRoles(Role.SuperAdmin, Role.Admin, Role.User)]
+        public async Task<ActionResult<User>> SelfUpdate([FromBody] Dto.Update.Request requestData)
+        {
+            try
+            {
+                var email = User.Claims.First(claim => claim.Type == ClaimTypes.Email).Value;
+                
+                var user = await _dataContext.Users
+                    .Include(u => u.Subject)
+                    .FirstAsync(u => u.Email == email);
+
+                if (requestData.SubjectId != null &&
+                    await _dataContext.Subjects.CountAsync(u => u.Id == requestData.SubjectId) == 0)
+                    return new BadRequestResult();
+
+                user.FirstName = requestData.FirstName;
+                user.LastName = requestData.LastName;
+                user.Biography = requestData.Biography;
+                user.HourlyRate = requestData.HourlyRate;
+                user.Currency = requestData.Currency;
+                user.SubjectId = requestData.SubjectId;
+
+                await _dataContext.SaveChangesAsync();
+
+                return user;
+            }
+            catch (InvalidOperationException)
+            {
+                return new NotFoundResult();
+            }
+            catch (ArgumentNullException)
+            {
+                return new NotFoundResult();
+            }
+        }
+
         [Route("{id}/change-password")]
         [HttpPut]
+        [AllowAnonymous]
         public async Task<ActionResult> ChangePassword([FromRoute] Guid id,
             [FromBody] Dto.ChangePassword.Request requestData)
         {
