@@ -49,9 +49,10 @@ namespace ProffyBackend
 
             services.AddAuthorization(options =>
             {
-                options.AddPolicy(Role.SuperAdmin, policy => policy.RequireClaim(ClaimTypes.Role, Role.SuperAdmin));
-                options.AddPolicy(Role.Admin, policy => policy.RequireClaim(ClaimTypes.Role, Role.Admin));
-                options.AddPolicy(Role.User, policy => policy.RequireClaim(ClaimTypes.Role, Role.User));
+                options.AddPolicy(AuthorizationPolicies.SuperAdmin, policy => policy.RequireClaim(ClaimTypes.Role, Role.SuperAdmin));
+                options.AddPolicy(AuthorizationPolicies.Admin, policy => policy.RequireClaim(ClaimTypes.Role, Role.Admin));
+                options.AddPolicy(AuthorizationPolicies.User, policy => policy.RequireClaim(ClaimTypes.Role, Role.User));
+                options.AddPolicy(AuthorizationPolicies.RefreshToken, policy => policy.RequireClaim(ClaimTypes.Email));
                 options.DefaultPolicy = options.GetPolicy(Role.SuperAdmin);
             });
 

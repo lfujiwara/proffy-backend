@@ -31,8 +31,54 @@ namespace ProffyBackend.Controllers.AuthController
             {
                 var user = await _dataContext.Users.FirstAsync(u => u.Email == requestData.Email);
                 if (BCrypt.Net.BCrypt.Verify(requestData.Password, user.Password))
-                    return new Response {Token = AuthService.GenerateToken(user)};
+                    return new Response
+                    {
+                        Refresh = AuthService.GenerateRefreshToken(user), Access = AuthService.GenerateAccessToken(user)
+                    };
                 return new BadRequestResult();
+            }
+            catch (InvalidOperationException)
+            {
+                return new NotFoundResult();
+            }
+            catch (ArgumentNullException)
+            {
+                return new NotFoundResult();
+            }
+        }
+
+        [HttpPost]
+        [Route("refresh")]
+        [AllowAnonymous]
+        public async Task<ActionResult<Dto.Refresh.Response>> Refresh([FromBody] Dto.Refresh.Request requestData)
+        {
+            try
+            {
+                var user = await _dataContext.Users.FirstAsync(u => u.Email == requestData.Email);
+                if (BCrypt.Net.BCrypt.Verify(requestData.Password, user.Password))
+                    return new Dto.Refresh.Response {Token = AuthService.GenerateRefreshToken(user)};
+                return new BadRequestResult();
+            }
+            catch (InvalidOperationException)
+            {
+                return new NotFoundResult();
+            }
+            catch (ArgumentNullException)
+            {
+                return new NotFoundResult();
+            }
+        }
+
+        [HttpPost]
+        [Route("access")]
+        [Authorize(AuthorizationPolicies.RefreshToken)]
+        public async Task<ActionResult<Dto.Refresh.Response>> Access()
+        {
+            try
+            {
+                var email = User.Claims.First(u => u.Type == ClaimTypes.Email).Value;
+                var user = await _dataContext.Users.FirstAsync(u => u.Email == email);
+                return new Dto.Refresh.Response {Token = AuthService.GenerateAccessToken(user)};
             }
             catch (InvalidOperationException)
             {
@@ -46,7 +92,7 @@ namespace ProffyBackend.Controllers.AuthController
 
         [HttpGet]
         [Route("check")]
-        [AuthorizeRoles(Role.SuperAdmin, Role.Admin, Role.User)]
+        [AuthorizeRoles(AuthorizationPolicies.SuperAdmin, AuthorizationPolicies.Admin, AuthorizationPolicies.User)]
         public ActionResult<string> Check()
         {
             var claim = User.Claims.First(c => c.Type == ClaimTypes.Role);

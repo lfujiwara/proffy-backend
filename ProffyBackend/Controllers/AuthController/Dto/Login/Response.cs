@@ -2,6 +2,7 @@ namespace ProffyBackend.Controllers.AuthController.Dto.Login
 {
     public class Response
     {
-        public string Token { get; set; }
+        public string Refresh { get; set; }
+        public string Access { get; set; }
     }
 }
