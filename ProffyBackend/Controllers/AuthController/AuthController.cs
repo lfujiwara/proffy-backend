@@ -25,13 +25,13 @@ namespace ProffyBackend.Controllers.AuthController
         [HttpPost]
         [Route("login")]
         [AllowAnonymous]
-        public async Task<ActionResult<Response>> Login([FromBody] Request requestData)
+        public async Task<ActionResult<LoginResponseDto>> Login([FromBody] LoginRequestDto requestData)
         {
             try
             {
                 var user = await _dataContext.Users.FirstAsync(u => u.Email == requestData.Email);
                 if (BCrypt.Net.BCrypt.Verify(requestData.Password, user.Password))
-                    return new Response
+                    return new LoginResponseDto
                     {
                         Refresh = AuthService.GenerateRefreshToken(user), Access = AuthService.GenerateAccessToken(user)
                     };
@@ -50,13 +50,13 @@ namespace ProffyBackend.Controllers.AuthController
         [HttpPost]
         [Route("refresh")]
         [AllowAnonymous]
-        public async Task<ActionResult<Dto.Refresh.Response>> Refresh([FromBody] Dto.Refresh.Request requestData)
+        public async Task<ActionResult<Dto.Refresh.RefreshResponseDto>> Refresh([FromBody] Dto.Refresh.RefreshRequestDto requestData)
         {
             try
             {
                 var user = await _dataContext.Users.FirstAsync(u => u.Email == requestData.Email);
                 if (BCrypt.Net.BCrypt.Verify(requestData.Password, user.Password))
-                    return new Dto.Refresh.Response {Token = AuthService.GenerateRefreshToken(user)};
+                    return new Dto.Refresh.RefreshResponseDto {Token = AuthService.GenerateRefreshToken(user)};
                 return new BadRequestResult();
             }
             catch (InvalidOperationException)
@@ -72,13 +72,13 @@ namespace ProffyBackend.Controllers.AuthController
         [HttpPost]
         [Route("access")]
         [Authorize(AuthorizationPolicies.RefreshToken)]
-        public async Task<ActionResult<Dto.Refresh.Response>> Access()
+        public async Task<ActionResult<Dto.Refresh.RefreshResponseDto>> Access()
         {
             try
             {
                 var email = User.Claims.First(u => u.Type == ClaimTypes.Email).Value;
                 var user = await _dataContext.Users.FirstAsync(u => u.Email == email);
-                return new Dto.Refresh.Response {Token = AuthService.GenerateAccessToken(user)};
+                return new Dto.Refresh.RefreshResponseDto {Token = AuthService.GenerateAccessToken(user)};
             }
             catch (InvalidOperationException)
             {

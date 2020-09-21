@@ -1,9 +1,9 @@
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
-namespace ProffyBackend.Controllers.AuthController.Dto.Refresh
+namespace ProffyBackend.Controllers.AuthController.Dto.Login
 {
-    public class Request
+    public class LoginRequestDto
     {
         [Required] [EmailAddress] public string Email { get; set; }
 
