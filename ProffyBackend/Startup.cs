@@ -1,6 +1,8 @@
+using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
@@ -36,6 +38,21 @@ namespace ProffyBackend
                 })
                 .AddJwtBearer(x =>
                 {
+                    x.Events = new JwtBearerEvents
+                    {
+                        OnMessageReceived = ctx =>
+                        {
+                            ctx.Token = ctx.Request.Headers.FirstOrDefault(p => p.Key == "Authorization").Value
+                                .ToString() ?? "";
+
+                            if (ctx.Token != "" && ctx.Token.Split(" ").Length > 1)
+                                ctx.Token = ctx.Token.Split(" ")[1];
+                            else
+                                ctx.Token = ctx.Request.Cookies["proffy-refresh"];
+
+                            return Task.CompletedTask;
+                        }
+                    };
                     x.RequireHttpsMetadata = false;
                     x.SaveToken = true;
                     x.TokenValidationParameters = new TokenValidationParameters

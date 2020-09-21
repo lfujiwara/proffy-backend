@@ -3,9 +3,11 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ProffyBackend.Controllers.AuthController.Dto.Login;
+using ProffyBackend.Controllers.AuthController.Dto.Refresh;
 using ProffyBackend.Models;
 using ProffyBackend.Services.Auth;
 
@@ -31,10 +33,23 @@ namespace ProffyBackend.Controllers.AuthController
             {
                 var user = await _dataContext.Users.FirstAsync(u => u.Email == requestData.Email);
                 if (BCrypt.Net.BCrypt.Verify(requestData.Password, user.Password))
+                {
+                    var refreshToken = AuthService.GenerateRefreshToken(user);
+
+                    if (!requestData.DontSetCookie)
+                    {
+                        var cookieOptions = requestData.RememberMe
+                            ? new CookieOptions {HttpOnly = true, Expires = DateTime.UtcNow.AddHours(12)}
+                            : new CookieOptions {HttpOnly = true};
+                        HttpContext.Response.Cookies.Append("proffy-refresh", refreshToken, cookieOptions);
+                    }
+                    
                     return new LoginResponseDto
                     {
-                        Refresh = AuthService.GenerateRefreshToken(user), Access = AuthService.GenerateAccessToken(user)
+                        Refresh = refreshToken, Access = AuthService.GenerateAccessToken(user)
                     };
+                }
+
                 return new BadRequestResult();
             }
             catch (InvalidOperationException)
@@ -50,13 +65,13 @@ namespace ProffyBackend.Controllers.AuthController
         [HttpPost]
         [Route("refresh")]
         [AllowAnonymous]
-        public async Task<ActionResult<Dto.Refresh.RefreshResponseDto>> Refresh([FromBody] Dto.Refresh.RefreshRequestDto requestData)
+        public async Task<ActionResult<RefreshResponseDto>> Refresh([FromBody] RefreshRequestDto requestData)
         {
             try
             {
                 var user = await _dataContext.Users.FirstAsync(u => u.Email == requestData.Email);
                 if (BCrypt.Net.BCrypt.Verify(requestData.Password, user.Password))
-                    return new Dto.Refresh.RefreshResponseDto {Token = AuthService.GenerateRefreshToken(user)};
+                    return new RefreshResponseDto {Token = AuthService.GenerateRefreshToken(user)};
                 return new BadRequestResult();
             }
             catch (InvalidOperationException)
@@ -72,13 +87,13 @@ namespace ProffyBackend.Controllers.AuthController
         [HttpPost]
         [Route("access")]
         [Authorize(AuthorizationPolicies.RefreshToken)]
-        public async Task<ActionResult<Dto.Refresh.RefreshResponseDto>> Access()
+        public async Task<ActionResult<RefreshResponseDto>> Access()
         {
             try
             {
                 var email = User.Claims.First(u => u.Type == ClaimTypes.Email).Value;
                 var user = await _dataContext.Users.FirstAsync(u => u.Email == email);
-                return new Dto.Refresh.RefreshResponseDto {Token = AuthService.GenerateAccessToken(user)};
+                return new RefreshResponseDto {Token = AuthService.GenerateAccessToken(user)};
             }
             catch (InvalidOperationException)
             {
