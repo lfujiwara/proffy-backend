@@ -104,7 +104,7 @@ namespace ProffyBackend
 
             // app.UseHttpsRedirection();
 
-            app.UseCors(x => x.AllowCredentials().AllowAnyHeader().AllowAnyMethod().WithOrigins("localhost:8080"));
+            app.UseCors(x => x.AllowCredentials().AllowAnyHeader().AllowAnyMethod().WithOrigins("http://localhost:3000"));
             app.UseAuthentication();
 
             app.UseRouting();
