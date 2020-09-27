@@ -63,6 +63,14 @@ namespace ProffyBackend.Controllers.AuthController
         }
 
         [HttpPost]
+        [Route("logout")]
+        [AllowAnonymous]
+        public void Logout()
+        {
+            HttpContext.Response.Cookies.Delete("proffy-refresh");
+        }
+
+        [HttpPost]
         [Route("refresh")]
         [AllowAnonymous]
         public async Task<ActionResult<RefreshResponseDto>> Refresh([FromBody] RefreshRequestDto requestData)

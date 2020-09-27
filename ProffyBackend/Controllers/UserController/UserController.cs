@@ -8,7 +8,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ProffyBackend.Controllers.UserController.Dto.Create;
 using ProffyBackend.Models;
-using ProffyBackend.Services.Auth;
 
 namespace ProffyBackend.Controllers.UserController
 {
@@ -50,7 +49,7 @@ namespace ProffyBackend.Controllers.UserController
         {
             return await _dataContext.Users.ToListAsync();
         }
-        
+
         [Route("{id}")]
         [HttpPut]
         public async Task<ActionResult<User>> Update([FromRoute] Guid id, [FromBody] Dto.Update.Request requestData)
@@ -93,7 +92,7 @@ namespace ProffyBackend.Controllers.UserController
             try
             {
                 var email = User.Claims.First(claim => claim.Type == ClaimTypes.Email).Value;
-                
+
                 var user = await _dataContext.Users
                     .Include(u => u.Subject)
                     .FirstAsync(u => u.Email == email);
@@ -166,6 +165,17 @@ namespace ProffyBackend.Controllers.UserController
             {
                 return new NotFoundResult();
             }
+        }
+
+        [Route("me")]
+        [Authorize(Role.User)]
+        [HttpGet]
+        public async Task<ActionResult<User>> Me()
+        {
+            var email = User.Claims.First(u => u.Type == ClaimTypes.Email).Value;
+            var user = await _dataContext.Users.FirstAsync(u => u.Email == email);
+
+            return user;
         }
     }
 }
