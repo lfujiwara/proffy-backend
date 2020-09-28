@@ -57,7 +57,6 @@ namespace ProffyBackend.Controllers.UserController
             try
             {
                 var user = await _dataContext.Users
-                    .Include(u => u.Subject)
                     .FirstAsync(u => u.Id == id);
 
                 if (requestData.SubjectId != null &&
@@ -94,7 +93,6 @@ namespace ProffyBackend.Controllers.UserController
                 var email = User.Claims.First(claim => claim.Type == ClaimTypes.Email).Value;
 
                 var user = await _dataContext.Users
-                    .Include(u => u.Subject)
                     .FirstAsync(u => u.Email == email);
 
                 if (requestData.SubjectId != null &&

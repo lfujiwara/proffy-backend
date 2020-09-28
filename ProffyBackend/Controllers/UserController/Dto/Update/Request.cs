@@ -19,6 +19,6 @@ namespace ProffyBackend.Controllers.UserController.Dto.Update
         [MaxLength(4)]
         public string Currency { get; set; }
 
-        public int? SubjectId { get; set; }
+        public string? SubjectId { get; set; }
     }
 }

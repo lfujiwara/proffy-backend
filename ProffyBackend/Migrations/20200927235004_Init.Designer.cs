@@ -9,7 +9,7 @@ using ProffyBackend.Models;
 namespace ProffyBackend.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20200919200435_Init")]
+    [Migration("20200927235004_Init")]
     partial class Init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -20,17 +20,10 @@ namespace ProffyBackend.Migrations
 
             modelBuilder.Entity("ProffyBackend.Models.Subject", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Name")
+                    b.Property<string>("Id")
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("Name")
-                        .IsUnique();
 
                     b.ToTable("Subjects");
                 });
@@ -77,8 +70,8 @@ namespace ProffyBackend.Migrations
                         .HasColumnType("TEXT")
                         .HasDefaultValue("User");
 
-                    b.Property<int?>("SubjectId")
-                        .HasColumnType("INTEGER");
+                    b.Property<string>("SubjectId")
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
@@ -95,7 +88,7 @@ namespace ProffyBackend.Migrations
 
             modelBuilder.Entity("ProffyBackend.Models.User", b =>
                 {
-                    b.HasOne("ProffyBackend.Models.Subject", "Subject")
+                    b.HasOne("ProffyBackend.Models.Subject", null)
                         .WithMany("Teachers")
                         .HasForeignKey("SubjectId");
                 });

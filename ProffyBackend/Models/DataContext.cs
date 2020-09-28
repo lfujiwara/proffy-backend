@@ -27,10 +27,6 @@ namespace ProffyBackend.Models
             modelBuilder.Entity<User>()
                 .Property(u => u.Role)
                 .HasDefaultValue(Role.User);
-
-            modelBuilder.Entity<Subject>()
-                .HasIndex(u => u.Name)
-                .IsUnique();
         }
     }
 }

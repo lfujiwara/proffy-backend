@@ -28,10 +28,7 @@ namespace ProffyBackend.Models
 
         [MaxLength(4)] public string Currency { get; set; }
         
-        public int? SubjectId { get; set; }
-        
-        [JsonIgnore]
-        public Subject Subject { get; set; }
+        public string? SubjectId { get; set; }
 
         [Required] [Phone] public string PhoneNumber { get; set; }
 

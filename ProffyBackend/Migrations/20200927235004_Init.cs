@@ -11,9 +11,7 @@ namespace ProffyBackend.Migrations
                 name: "Subjects",
                 columns: table => new
                 {
-                    Id = table.Column<int>(nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    Name = table.Column<string>(nullable: true)
+                    Id = table.Column<string>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -32,7 +30,7 @@ namespace ProffyBackend.Migrations
                     Biography = table.Column<string>(nullable: true),
                     HourlyRate = table.Column<int>(nullable: true),
                     Currency = table.Column<string>(maxLength: 4, nullable: true),
-                    SubjectId = table.Column<int>(nullable: true),
+                    SubjectId = table.Column<string>(nullable: true),
                     PhoneNumber = table.Column<string>(nullable: false),
                     Role = table.Column<string>(nullable: false, defaultValue: "User")
                 },
@@ -46,12 +44,6 @@ namespace ProffyBackend.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Subjects_Name",
-                table: "Subjects",
-                column: "Name",
-                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Users_Email",
