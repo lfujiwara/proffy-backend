@@ -18,10 +18,12 @@ namespace ProffyBackend.Controllers.AuthController
     public class AuthController : ControllerBase
     {
         private readonly DataContext _dataContext;
+        private readonly AuthService _authService;
 
-        public AuthController([FromServices] DataContext dataContext)
+        public AuthController([FromServices] DataContext dataContext, [FromServices] AuthService authService)
         {
             _dataContext = dataContext;
+            _authService = authService;
         }
 
         [HttpPost]
@@ -34,7 +36,7 @@ namespace ProffyBackend.Controllers.AuthController
                 var user = await _dataContext.Users.FirstAsync(u => u.Email == requestData.Email);
                 if (BCrypt.Net.BCrypt.Verify(requestData.Password, user.Password))
                 {
-                    var refreshToken = AuthService.GenerateRefreshToken(user);
+                    var refreshToken = _authService.GenerateRefreshToken(user);
 
                     if (!requestData.DontSetCookie)
                     {
@@ -43,10 +45,10 @@ namespace ProffyBackend.Controllers.AuthController
                             : new CookieOptions {HttpOnly = true};
                         HttpContext.Response.Cookies.Append("proffy-refresh", refreshToken, cookieOptions);
                     }
-                    
+
                     return new LoginResponseDto
                     {
-                        Refresh = refreshToken, Access = AuthService.GenerateAccessToken(user)
+                        Refresh = refreshToken, Access = _authService.GenerateAccessToken(user)
                     };
                 }
 
@@ -79,7 +81,7 @@ namespace ProffyBackend.Controllers.AuthController
             {
                 var user = await _dataContext.Users.FirstAsync(u => u.Email == requestData.Email);
                 if (BCrypt.Net.BCrypt.Verify(requestData.Password, user.Password))
-                    return new RefreshResponseDto {Token = AuthService.GenerateRefreshToken(user)};
+                    return new RefreshResponseDto {Token = _authService.GenerateRefreshToken(user)};
                 return new BadRequestResult();
             }
             catch (InvalidOperationException)
@@ -101,7 +103,7 @@ namespace ProffyBackend.Controllers.AuthController
             {
                 var email = User.Claims.First(u => u.Type == ClaimTypes.Email).Value;
                 var user = await _dataContext.Users.FirstAsync(u => u.Email == email);
-                return new RefreshResponseDto {Token = AuthService.GenerateAccessToken(user)};
+                return new RefreshResponseDto {Token = _authService.GenerateAccessToken(user)};
             }
             catch (InvalidOperationException)
             {

@@ -14,6 +14,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using ProffyBackend.Models;
+using ProffyBackend.Services.Auth;
 
 namespace ProffyBackend
 {
@@ -84,6 +85,8 @@ namespace ProffyBackend
                 options.AddPolicy(AuthorizationPolicies.RefreshToken, policy => policy.RequireClaim(ClaimTypes.Email));
                 options.DefaultPolicy = options.GetPolicy(Role.SuperAdmin);
             });
+
+            services.AddSingleton<AuthService>(new AuthService(Configuration["JWT_SECRET"]));
 
             services
                 .AddControllers(config =>

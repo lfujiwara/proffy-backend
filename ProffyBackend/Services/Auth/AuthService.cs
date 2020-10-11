@@ -8,14 +8,19 @@ using ProffyBackend.Models;
 
 namespace ProffyBackend.Services.Auth
 {
-    public static class AuthService
+    public class AuthService
     {
-        private static readonly string secret = "CHANGE_THIS_SECRET";
+        private readonly string JWT_SECRET;
 
-        private static string GenerateToken(IEnumerable<Claim> claims, DateTime expires)
+        public AuthService(string secret)
+        {
+            JWT_SECRET = secret;
+        }
+
+        private string GenerateToken(IEnumerable<Claim> claims, DateTime expires)
         {
             var handler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(secret);
+            var key = Encoding.ASCII.GetBytes(JWT_SECRET);
             var descriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(claims),
@@ -30,9 +35,9 @@ namespace ProffyBackend.Services.Auth
             return handler.WriteToken(token);
         }
 
-        public static string GenerateAccessToken(User user)
+        public string GenerateAccessToken(User user)
         {
-            return AuthService.GenerateToken(
+            return GenerateToken(
                 new[]
                 {
                     new Claim(ClaimTypes.Email, user.Email),
@@ -42,9 +47,9 @@ namespace ProffyBackend.Services.Auth
             );
         }
 
-        public static string GenerateRefreshToken(User user)
+        public  string GenerateRefreshToken(User user)
         {
-            return AuthService.GenerateToken(
+            return GenerateToken(
                 new[]
                 {
                     new Claim(ClaimTypes.Email, user.Email)
