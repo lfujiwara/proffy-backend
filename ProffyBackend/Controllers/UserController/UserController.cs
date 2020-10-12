@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ProffyBackend.Controllers.UserController.Dto.Create;
+using ProffyBackend.Controllers.UserController.Dto.ValidateEmail;
+using ProffyBackend.Controllers.UserController.Dto.ValidatePhoneNumber;
 using ProffyBackend.Models;
 
 namespace ProffyBackend.Controllers.UserController
@@ -174,6 +176,29 @@ namespace ProffyBackend.Controllers.UserController
             var user = await _dataContext.Users.FirstAsync(u => u.Email == email);
 
             return user;
+        }
+
+        [Route("validate-email")]
+        [AllowAnonymous]
+        [HttpGet]
+        public async Task<ActionResult> ValidateEmail([FromQuery] ValidateEmailRequestDto data)
+        {
+            var n = await _dataContext.Users.CountAsync(u => u.Email == data.Email);
+            if (n > 0) return new ConflictResult();
+            return new OkResult();
+        }
+
+        [AllowAnonymous]
+        [Route("validate-phone-number")]
+        [HttpGet]
+        public async Task<ActionResult> ValidatePhoneNumber([FromQuery] ValidatePhoneNumberRequestDto data)
+        {
+            var n = await _dataContext.Users
+                .CountAsync(u =>
+                    u.PhoneNumber.Replace("+", "").Replace(" ", "") ==
+                    data.PhoneNumber.Replace("+", "").Replace(" ", ""));
+            if (n > 0) return new ConflictResult();
+            return new OkResult();
         }
     }
 }

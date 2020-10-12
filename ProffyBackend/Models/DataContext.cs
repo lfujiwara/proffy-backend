@@ -12,6 +12,8 @@ namespace ProffyBackend.Models
         public DbSet<User> Users { get; set; }
         public DbSet<Subject> Subjects { get; set; }
 
+        public DbSet<UserAPIKey> UserApiKeys { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -27,6 +29,10 @@ namespace ProffyBackend.Models
             modelBuilder.Entity<User>()
                 .Property(u => u.Role)
                 .HasDefaultValue(Role.User);
+
+            modelBuilder.Entity<UserAPIKey>()
+                .HasIndex(k => k.Key)
+                .IsUnique();
         }
     }
 }

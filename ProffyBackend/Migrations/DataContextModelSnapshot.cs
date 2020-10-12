@@ -84,11 +84,46 @@ namespace ProffyBackend.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("ProffyBackend.Models.UserAPIKey", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Key")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("OwnerId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Key")
+                        .IsUnique();
+
+                    b.HasIndex("OwnerId");
+
+                    b.ToTable("UserApiKeys");
+                });
+
             modelBuilder.Entity("ProffyBackend.Models.User", b =>
                 {
                     b.HasOne("ProffyBackend.Models.Subject", null)
                         .WithMany("Teachers")
                         .HasForeignKey("SubjectId");
+                });
+
+            modelBuilder.Entity("ProffyBackend.Models.UserAPIKey", b =>
+                {
+                    b.HasOne("ProffyBackend.Models.User", "Owner")
+                        .WithMany("ApiKeys")
+                        .HasForeignKey("OwnerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

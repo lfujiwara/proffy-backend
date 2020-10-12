@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -8,7 +9,9 @@ namespace ProffyBackend.Models
 {
     public class User
     {
-        [Key] [DatabaseGenerated(DatabaseGeneratedOption.Identity)] public Guid Id { get; set; }
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public Guid Id { get; set; }
 
         [Required] [EmailAddress] public string Email { get; set; }
 
@@ -27,11 +30,13 @@ namespace ProffyBackend.Models
         public int? HourlyRate { get; set; }
 
         [MaxLength(4)] public string Currency { get; set; }
-        
+
         public string? SubjectId { get; set; }
 
         [Required] [Phone] public string PhoneNumber { get; set; }
 
         [Required] public string Role { get; set; }
+
+        [JsonIgnore] public List<UserAPIKey> ApiKeys { get; set; }
     }
 }

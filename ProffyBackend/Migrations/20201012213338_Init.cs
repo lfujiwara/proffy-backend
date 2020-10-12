@@ -45,6 +45,38 @@ namespace ProffyBackend.Migrations
                         onDelete: ReferentialAction.Restrict);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "UserApiKeys",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    Description = table.Column<string>(nullable: true),
+                    OwnerId = table.Column<Guid>(nullable: false),
+                    Key = table.Column<string>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserApiKeys", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_UserApiKeys_Users_OwnerId",
+                        column: x => x.OwnerId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserApiKeys_Key",
+                table: "UserApiKeys",
+                column: "Key",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserApiKeys_OwnerId",
+                table: "UserApiKeys",
+                column: "OwnerId");
+
             migrationBuilder.CreateIndex(
                 name: "IX_Users_Email",
                 table: "Users",
@@ -65,6 +97,9 @@ namespace ProffyBackend.Migrations
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "UserApiKeys");
+
             migrationBuilder.DropTable(
                 name: "Users");
 
