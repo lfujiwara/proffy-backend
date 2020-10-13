@@ -1,0 +1,6 @@
+{
+  "verbose": true,
+  "execMap": {
+    "ts": "node --inspect=9230 -r sucrase/register"
+  }
+}
