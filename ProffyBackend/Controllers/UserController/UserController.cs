@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using AspNetCore.Authentication.ApiKey;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -25,7 +26,7 @@ namespace ProffyBackend.Controllers.UserController
         }
 
         [HttpPost]
-        [AllowAnonymous]
+        [Authorize(AuthenticationSchemes = ApiKeyDefaults.AuthenticationScheme)]
         public async Task<ActionResult<User>> Create([FromBody] Request requestData)
         {
             // Wrap logic into service layer later
@@ -47,6 +48,7 @@ namespace ProffyBackend.Controllers.UserController
         }
 
         [HttpGet]
+        [Authorize(AuthenticationSchemes = ApiKeyDefaults.AuthenticationScheme)]
         public async Task<IEnumerable<User>> ListUsers()
         {
             return await _dataContext.Users.ToListAsync();

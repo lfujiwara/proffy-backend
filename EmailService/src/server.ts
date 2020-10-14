@@ -1,10 +1,11 @@
+import axios from 'axios';
 import cors from 'cors';
 import Express from 'express';
 import Email from 'email-templates';
 import jwt from 'jsonwebtoken';
 import path from 'path';
 import constants from './constants';
-import { registerSchema, IRegisterRequest } from './schemas';
+import { registerSchema, IRegisterRequest, confirmSchema } from './schemas';
 import transporter from './mailer';
 
 const server = Express();
@@ -32,7 +33,6 @@ const email = new Email({
 });
 
 server.post('/register', async (req, res) => {
-  console.log(req.body);
   await registerSchema
     .validateAsync(req.body)
     .then(async (value: IRegisterRequest) => {
@@ -54,8 +54,33 @@ server.post('/register', async (req, res) => {
 });
 
 server.post('/confirm', async (req, res) => {
-  console.log(req.body);
-  res.sendStatus(201);
+  let userData;
+  try {
+    const token: string = req.body.token;
+    userData = jwt.decode(token);
+    if (userData.exp && new Date() > new Date(Number(userData.exp) * 1000))
+      throw new Error('Token expired');
+    delete userData.exp;
+    delete userData.iat;
+  } catch (err) {
+    res.status(400).json(err);
+    return;
+  }
+
+  const password = req.body.password;
+
+  await confirmSchema
+    .validateAsync({ ...userData, password })
+    .catch((err) => res.status(400).json(err))
+    .then((data) =>
+      axios.post(`${constants.PROFFY_BACKEND}/users`, data, {
+        headers: { 'X-API-KEY': constants.PROFFY_API_KEY },
+      })
+    )
+    .then(() => {
+      res.sendStatus(201);
+    })
+    .catch((err) => res.status(500).json(err));
 });
 
 export default server;
