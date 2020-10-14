@@ -4,7 +4,6 @@ import constants from './constants';
 const transporter = nodemailer.createTransport({
   host: constants.SMTP_HOST,
   port: Number(constants.SMTP_PORT),
-  secureConnection: false,
   tls: {
     ciphers: 'SSLv3',
   },

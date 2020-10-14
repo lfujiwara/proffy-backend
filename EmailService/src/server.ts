@@ -43,10 +43,13 @@ server.post('/register', async (req, res) => {
         to: value.email,
         from: constants.SMTP_USER,
         subject: 'Cadastro - Proffy',
-        html: await email.render(`${__dirname}/templates/confirm-email.ejs`, {
-          name: value.firstName,
-          url: `${constants.PROFFY_REGISTRATION_URL}?token=${userDataToken}`,
-        }),
+        html: await email.render(
+          `${__dirname}/../templates/confirm-email.ejs`,
+          {
+            name: value.firstName,
+            url: `${constants.PROFFY_REGISTRATION_URL}?token=${userDataToken}`,
+          }
+        ),
       });
     })
     .then(() => res.sendStatus(201))
