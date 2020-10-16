@@ -14,6 +14,8 @@ namespace ProffyBackend.Models
 
         public DbSet<UserAPIKey> UserApiKeys { get; set; }
 
+        public DbSet<AvailableTimeWindow> AvailableTimeWindows { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -32,6 +34,10 @@ namespace ProffyBackend.Models
 
             modelBuilder.Entity<UserAPIKey>()
                 .HasIndex(k => k.Key)
+                .IsUnique();
+
+            modelBuilder.Entity<AvailableTimeWindow>()
+                .HasIndex(a => new {a.WeekDay, a.OwnerId})
                 .IsUnique();
         }
     }

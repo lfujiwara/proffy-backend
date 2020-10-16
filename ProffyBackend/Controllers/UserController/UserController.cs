@@ -51,7 +51,7 @@ namespace ProffyBackend.Controllers.UserController
         [Authorize(AuthenticationSchemes = ApiKeyDefaults.AuthenticationScheme)]
         public async Task<IEnumerable<User>> ListUsers()
         {
-            return await _dataContext.Users.ToListAsync();
+            return await _dataContext.Users.Include(u => u.AvailableTimeWindows).ToListAsync();
         }
 
         [Route("{id}")]

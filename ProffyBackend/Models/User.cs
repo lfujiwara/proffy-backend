@@ -38,5 +38,9 @@ namespace ProffyBackend.Models
         [Required] public string Role { get; set; }
 
         [JsonIgnore] public List<UserAPIKey> ApiKeys { get; set; }
+
+        public bool IsActive { get; set; }
+
+        public List<AvailableTimeWindow> AvailableTimeWindows { get; set; }
     }
 }
