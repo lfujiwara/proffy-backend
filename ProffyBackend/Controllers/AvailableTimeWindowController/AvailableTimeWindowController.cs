@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
@@ -20,6 +21,66 @@ namespace ProffyBackend.Controllers.AvailableTimeWindowController
             _dataContext = dataContext;
         }
 
+        private async Task<User> GetUser()
+        {
+            var userEmail = HttpContext.User.FindFirst(c => c.Type == ClaimTypes.Email).Value;
+            User user;
+            try
+            {
+                user = await _dataContext.Users.FirstAsync(u => u.Email == userEmail);
+            }
+            catch (InvalidOperationException)
+            {
+                return null;
+            }
+
+            return user;
+        }
+
+        [HttpPut]
+        [Authorize(Role.User)]
+        public async Task<ActionResult<AvailableTimeWindow>> SetAvailableTimeWindow(
+            [FromBody] SetAvailableTimeWindowDto data)
+        {
+            var user = await GetUser();
+            if (user == null) return new NotFoundResult();
+            AvailableTimeWindow atw;
+
+            try
+            {
+                atw = await _dataContext.AvailableTimeWindows.FirstAsync(a =>
+                    a.OwnerId == user.Id && a.WeekDay == data.WeekDay);
+                atw.StartHour = data.StartHour;
+                atw.EndHour = data.EndHour;
+                await _dataContext.SaveChangesAsync();
+            }
+            catch (InvalidOperationException)
+            {
+                atw = new AvailableTimeWindow
+                    {OwnerId = user.Id, StartHour = data.StartHour, EndHour = data.EndHour, WeekDay = data.WeekDay};
+                await _dataContext.AvailableTimeWindows.AddAsync(atw);
+                await _dataContext.SaveChangesAsync();
+            }
+
+            return new ActionResult<AvailableTimeWindow>(atw);
+        }
+
+        [HttpDelete]
+        [Authorize(Role.User)]
+        public async Task<ActionResult> DeleteAvailableTimeWindow([FromQuery] DeleteAvailableTimeWindowDto data)
+        {
+            var user = await GetUser();
+            if (user == null) return new NotFoundResult();
+
+            var matchingTimeWindows = await
+                _dataContext.AvailableTimeWindows.Where(a => a.OwnerId == user.Id && a.WeekDay == data.WeekDay)
+                    .ToListAsync();
+
+            _dataContext.AvailableTimeWindows.RemoveRange(matchingTimeWindows);
+            await _dataContext.SaveChangesAsync();
+            return new AcceptedResult();
+        }
+
         public async Task<ActionResult<AvailableTimeWindow>> Add(AvailableTimeWindow availableTimeWindow)
         {
             if (availableTimeWindow.StartHour > availableTimeWindow.EndHour) return new BadRequestResult();
@@ -31,8 +92,7 @@ namespace ProffyBackend.Controllers.AvailableTimeWindowController
             return new CreatedResult("", availableTimeWindow);
         }
 
-        [HttpPost]
-        [Authorize(Role.User)]
+
         public async Task<ActionResult<AvailableTimeWindow>> Add([FromBody] AddDto data)
         {
             User owner;
@@ -54,7 +114,6 @@ namespace ProffyBackend.Controllers.AvailableTimeWindowController
             return new CreatedResult("Created", await Add(availableTimeWindow));
         }
 
-        [Authorize(Role.User)]
         public async Task<ActionResult<AvailableTimeWindow>> AddSelf([FromBody] AddDto data)
         {
             var ownerEmail = HttpContext.User.FindFirst(c => c.Type == ClaimTypes.Email).Value;
@@ -77,8 +136,6 @@ namespace ProffyBackend.Controllers.AvailableTimeWindowController
             return new CreatedResult("Created", await Add(availableTimeWindow));
         }
 
-        [HttpDelete]
-        [Authorize(Role.User)]
         public async Task<ActionResult> Delete([FromQuery] DeleteDto data)
         {
             var atw =
