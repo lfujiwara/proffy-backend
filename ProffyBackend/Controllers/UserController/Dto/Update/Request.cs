@@ -20,5 +20,7 @@ namespace ProffyBackend.Controllers.UserController.Dto.Update
         public string Currency { get; set; }
 
         public string? SubjectId { get; set; }
+
+        public bool IsActive { get; set; }
     }
 }

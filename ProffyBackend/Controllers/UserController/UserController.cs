@@ -109,6 +109,7 @@ namespace ProffyBackend.Controllers.UserController
                 user.HourlyRate = requestData.HourlyRate;
                 user.Currency = requestData.Currency;
                 user.SubjectId = requestData.SubjectId;
+                user.IsActive = requestData.IsActive;
 
                 await _dataContext.SaveChangesAsync();
 
