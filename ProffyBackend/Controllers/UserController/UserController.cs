@@ -25,6 +25,22 @@ namespace ProffyBackend.Controllers.UserController
             _dataContext = dataContext;
         }
 
+        private async Task<User> GetUser()
+        {
+            var userEmail = HttpContext.User.FindFirst(c => c.Type == ClaimTypes.Email).Value;
+            User user;
+            try
+            {
+                user = await _dataContext.Users.FirstAsync(u => u.Email == userEmail);
+            }
+            catch (InvalidOperationException)
+            {
+                return null;
+            }
+
+            return user;
+        }
+
         [HttpPost]
         [Authorize(AuthenticationSchemes = ApiKeyDefaults.AuthenticationScheme)]
         public async Task<ActionResult<User>> Create([FromBody] Request requestData)
@@ -202,6 +218,34 @@ namespace ProffyBackend.Controllers.UserController
                     data.PhoneNumber.Replace("+", "").Replace(" ", ""));
             if (n > 0) return new ConflictResult();
             return new OkResult();
+        }
+
+        [Route("proffys")]
+        [HttpGet]
+        [Authorize(Role.User)]
+        public async Task<ActionResult<IEnumerable<User>>> ListProffys()
+        {
+            var user = await GetUser();
+            if (user is null) return new NotFoundResult();
+
+            var proffys = await _dataContext.Users.Include(u => u.AvailableTimeWindows).Where(u =>
+                u.IsActive && u.SubjectId != null && u.AvailableTimeWindows.Count > 0 && u.Id != user.Id).ToListAsync();
+
+            return proffys;
+        }
+
+        [Route("proffys/count")]
+        [HttpGet]
+        [Authorize(Role.User)]
+        public async Task<ActionResult<int>> CountProffys()
+        {
+            var user = await GetUser();
+            if (user is null) return new NotFoundResult();
+
+            var proffyCount = await _dataContext.Users.Include(u => u.AvailableTimeWindows).Where(u =>
+                u.IsActive && u.SubjectId != null && u.AvailableTimeWindows.Count > 0 && u.Id != user.Id).CountAsync();
+
+            return proffyCount;
         }
     }
 }
