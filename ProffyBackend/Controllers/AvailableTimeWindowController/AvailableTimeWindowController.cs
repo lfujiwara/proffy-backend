@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -46,6 +47,8 @@ namespace ProffyBackend.Controllers.AvailableTimeWindowController
             if (user == null) return new NotFoundResult();
             AvailableTimeWindow atw;
 
+            if (data.StartHour >= data.EndHour) return new BadRequestResult();
+
             try
             {
                 atw = await _dataContext.AvailableTimeWindows.FirstAsync(a =>
@@ -90,6 +93,15 @@ namespace ProffyBackend.Controllers.AvailableTimeWindowController
             await _dataContext.AvailableTimeWindows.AddAsync(availableTimeWindow);
             await _dataContext.SaveChangesAsync();
             return new CreatedResult("", availableTimeWindow);
+        }
+
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<AvailableTimeWindow>>> List()
+        {
+            var user = await GetUser();
+            if (user == null) return new NotFoundResult();
+
+            return await _dataContext.AvailableTimeWindows.Where(atw => atw.OwnerId == user.Id).ToListAsync();
         }
 
 
